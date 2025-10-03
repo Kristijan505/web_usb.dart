@@ -1,4 +1,4 @@
-Dart wrapper via `dart:js` for https://wicg.github.io/webusb/
+Dart wrapper using `dart:js_interop` for https://wicg.github.io/webusb/
 
 ## Features
 

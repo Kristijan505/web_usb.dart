@@ -1,11 +1,8 @@
-@JS()
-library web_usb;
-
-import 'dart:html' show EventListener, EventTarget;
-import 'dart:js_util' show promiseToFuture;
+import 'dart:async';
+import 'dart:js_interop';
 import 'dart:typed_data';
 
-import 'package:js/js.dart';
+import 'package:web/web.dart';
 
 import 'src/js_facade.dart';
 
@@ -13,6 +10,12 @@ part 'src/web_usb_base.dart';
 
 @JS('navigator.usb')
 external EventTarget? get _usb;
+
+// External JavaScript functions for WebUSB operations
+@JS()
+external JSAny? jsRequestDevice(JSAny? options);
+@JS()
+external JSAny? jsGetDevices();
 
 bool canUseUsb() => _usb != null;
 

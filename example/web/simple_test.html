@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Simple Web USB Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Simple Web USB Test</h1>
+
+    <div id="status" class="status info">
+        Checking USB support...
+    </div>
+
+    <div>
+        <button id="checkUsb">Check USB Support</button>
+        <button id="getDevices">Get Devices</button>
+        <button id="requestDevice">Request Device</button>
+    </div>
+
+    <div id="output"></div>
+
+    <script>
+        console.log('Simple Web USB test loaded');
+
+        // Get DOM elements
+        const statusDiv = document.getElementById('status');
+        const outputDiv = document.getElementById('output');
+        const checkUsbBtn = document.getElementById('checkUsb');
+        const getDevicesBtn = document.getElementById('getDevices');
+        const requestDeviceBtn = document.getElementById('requestDevice');
+
+        // Helper function to update status
+        function updateStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+
+        // Helper function to add output
+        function addOutput(message) {
+            const p = document.createElement('p');
+            p.textContent = message;
+            outputDiv.appendChild(p);
+        }
+
+        // Check USB support
+        function checkUsbSupport() {
+            try {
+                console.log('Checking USB support...');
+                if (navigator.usb) {
+                    updateStatus('✅ USB API is supported!', 'success');
+                    addOutput('USB API is available in this browser');
+                    console.log('USB API is available');
+                } else {
+                    updateStatus('❌ USB API is not supported', 'error');
+                    addOutput('USB API is not available in this browser');
+                    console.log('USB API is not available');
+                }
+            } catch (e) {
+                updateStatus('❌ Error checking USB support: ' + e.message, 'error');
+                addOutput('Error: ' + e.message);
+                console.error('Error checking USB support:', e);
+            }
+        }
+
+        // Get devices
+        async function getDevices() {
+            try {
+                if (!navigator.usb) {
+                    addOutput('USB API not available');
+                    return;
+                }
+
+                addOutput('Getting devices...');
+                console.log('Getting devices...');
+                const devices = await navigator.usb.getDevices();
+                addOutput(`Found ${devices.length} devices`);
+                console.log('Found devices:', devices);
+
+                for (let i = 0; i < devices.length; i++) {
+                    const device = devices[i];
+                    addOutput(`Device ${i}: ${device.productName || 'Unknown'} (${device.vendorId}:${device.productId})`);
+                }
+            } catch (e) {
+                addOutput('Error getting devices: ' + e.message);
+                console.error('Error getting devices:', e);
+            }
+        }
+
+        // Request device
+        async function requestDevice() {
+            try {
+                if (!navigator.usb) {
+                    addOutput('USB API not available');
+                    return;
+                }
+
+                addOutput('Requesting device...');
+                console.log('Requesting device...');
+                const device = await navigator.usb.requestDevice({
+                    filters: []
+                });
+                addOutput(`Device selected: ${device.productName || 'Unknown'} (${device.vendorId}:${device.productId})`);
+                console.log('Device selected:', device);
+            } catch (e) {
+                addOutput('Error requesting device: ' + e.message);
+                console.error('Error requesting device:', e);
+            }
+        }
+
+        // Set up event listeners
+        checkUsbBtn.addEventListener('click', checkUsbSupport);
+        getDevicesBtn.addEventListener('click', getDevices);
+        requestDeviceBtn.addEventListener('click', requestDevice);
+
+        // Initial check
+        checkUsbSupport();
+
+        console.log('Event listeners attached');
+    </script>
+</body>
+
+</html>

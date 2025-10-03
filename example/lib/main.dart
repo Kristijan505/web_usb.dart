@@ -1,109 +1,144 @@
-// ignore_for_file: avoid_print, avoid_web_libraries_in_flutter
-
-import 'dart:html' show Event, EventListener;
-import 'dart:js' show allowInterop;
-
-import 'package:flutter/material.dart';
+import 'dart:js_interop';
+import 'package:web/web.dart';
 import 'package:web_usb/web_usb.dart';
-
-import 'ledger_nano_s_page.dart';
+import 'thermal_printer_example.dart';
 
 void main() {
-  runApp(const MyApp());
-}
+  // Get DOM elements
+  final statusDiv = document.getElementById('status') as HTMLDivElement;
+  final outputDiv = document.getElementById('output') as HTMLDivElement;
+  final checkUsbBtn = document.getElementById('checkUsb') as HTMLButtonElement;
+  final getDevicesBtn =
+      document.getElementById('getDevices') as HTMLButtonElement;
+  final requestDeviceBtn =
+      document.getElementById('requestDevice') as HTMLButtonElement;
+  final testThermalPrinterBtn =
+      document.getElementById('testThermalPrinter') as HTMLButtonElement;
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(),
-    );
+  // Helper function to update status
+  void updateStatus(String message, String type) {
+    statusDiv.textContent = message;
+    statusDiv.className = 'status $type';
   }
-}
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('web_usb example'),
-      ),
-      body: Center(
-        child: Column(
-          children: [
-            ElevatedButton(
-              child: const Text('canUse'),
-              onPressed: () {
-                bool canUse = canUseUsb();
-                print('canUse $canUse');
-              },
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  child: const Text('usb.subscribeConnect'),
-                  onPressed: () {
-                    usb.subscribeConnect(_handleConnect);
-                    print('usb.subscribeConnect success');
-                  },
-                ),
-                ElevatedButton(
-                  child: const Text('usb.unsubscribeConnect'),
-                  onPressed: () {
-                    usb.unsubscribeConnect(_handleConnect);
-                    print('usb.unsubscribeConnect success');
-                  },
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  child: const Text('usb.subscribeDisconnect'),
-                  onPressed: () {
-                    usb.subscribeDisconnect(_handleDisconnect);
-                    print('usb.subscribeDisconnect success');
-                  },
-                ),
-                ElevatedButton(
-                  child: const Text('usb.unsubscribeDisconnect'),
-                  onPressed: () {
-                    usb.unsubscribeDisconnect(_handleDisconnect);
-                    print('usb.unsubscribeDisconnect success');
-                  },
-                ),
-              ],
-            ),
-            ElevatedButton(
-              child: const Text('Ledger Nano S'),
-              onPressed: () {
-                var route = MaterialPageRoute(builder: (context) {
-                  return const LedgerNanoSPage();
-                });
-                Navigator.of(context).push(route);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
+  // Helper function to add output
+  void addOutput(String message) {
+    final p = document.createElement('p') as HTMLParagraphElement;
+    p.textContent = message;
+    outputDiv.appendChild(p);
   }
+
+  // Check USB support
+  void checkUsbSupport() {
+    try {
+      final canUse = canUseUsb();
+      if (canUse) {
+        updateStatus('✅ USB API is supported!', 'success');
+        addOutput('USB API is available in this browser');
+      } else {
+        updateStatus('❌ USB API is not supported', 'error');
+        addOutput('USB API is not available in this browser');
+      }
+    } catch (e) {
+      updateStatus('❌ Error checking USB support: $e', 'error');
+      addOutput('Error: $e');
+    }
+  }
+
+  // Get devices
+  void getDevices() async {
+    try {
+      if (!canUseUsb()) {
+        addOutput('USB API not available');
+        return;
+      }
+
+      addOutput('Getting devices...');
+      final devices = await usb.getDevices();
+      addOutput('Found ${devices.length} devices');
+
+      for (int i = 0; i < devices.length; i++) {
+        addOutput('Device $i: ${devices[i].toString()}');
+      }
+    } catch (e) {
+      addOutput('Error getting devices: $e');
+    }
+  }
+
+  // Request device
+  void requestDevice() async {
+    try {
+      if (!canUseUsb()) {
+        addOutput('USB API not available');
+        return;
+      }
+
+      addOutput('Requesting device...');
+      final device = await usb.requestDevice();
+      addOutput('Device selected: ${device.toString()}');
+    } catch (e) {
+      addOutput('Error requesting device: $e');
+    }
+  }
+
+  // Test thermal printer
+  void testThermalPrinter() async {
+    try {
+      if (!canUseUsb()) {
+        addOutput('USB API not available');
+        return;
+      }
+
+      addOutput('Testing thermal printer functionality...');
+
+      final printer = ThermalPrinterExample();
+
+      // Initialize the printer
+      addOutput('Initializing thermal printer...');
+      final initialized = await printer.initializePrinter();
+
+      if (!initialized) {
+        addOutput('Failed to initialize printer');
+        return;
+      }
+
+      // Print a simple test receipt
+      addOutput('Printing test receipt...');
+      final success = await printer.printTestReceipt();
+
+      if (success) {
+        addOutput('✅ Test receipt printed successfully!');
+
+        // Wait a bit before printing the complex receipt
+        await Future.delayed(const Duration(seconds: 2));
+
+        // Print a complex receipt
+        addOutput('Printing complex receipt...');
+        final complexSuccess = await printer.printComplexReceipt();
+
+        if (complexSuccess) {
+          addOutput('✅ Complex receipt printed successfully!');
+        } else {
+          addOutput('❌ Failed to print complex receipt');
+        }
+      } else {
+        addOutput('❌ Failed to print test receipt');
+      }
+
+      // Clean up
+      await printer.cleanup();
+      addOutput('Printer cleanup completed');
+    } catch (e) {
+      addOutput('Error testing thermal printer: $e');
+    }
+  }
+
+  // Set up event listeners
+  checkUsbBtn.onClick.listen((_) => checkUsbSupport());
+  getDevicesBtn.onClick.listen((_) => getDevices());
+  requestDeviceBtn.onClick.listen((_) => requestDevice());
+  testThermalPrinterBtn.onClick.listen((_) => testThermalPrinter());
+
+  // Initial check
+  checkUsbSupport();
 }
-
-final EventListener _handleConnect = allowInterop((Event event) {
-  print('_handleConnect $event');
-});
-
-final EventListener _handleDisconnect = allowInterop((Event event) {
-  print('_handleDisconnect $event');
-});
