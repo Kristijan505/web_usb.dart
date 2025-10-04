@@ -7,17 +7,50 @@ Future<T> promiseToFuture<T>(JSAny? promise) {
   }
 
   // Use dart:js_interop's toDart extension method
-  return (promise as JSPromise<JSAny?>).toDart.then((value) => value as T);
+  return (promise as JSPromise<JSAny?>).toDart.then((value) {
+    // For JS interop wrapper types, create the appropriate wrapper
+    if (T == UsbDevice) {
+      return UsbDevice._(value as JSObject) as T;
+    } else if (T == List<UsbDevice>) {
+      // Convert JS array to List<UsbDevice>
+      final jsArray = value as JSArray;
+      final List<UsbDevice> deviceList = [];
+      for (int i = 0; i < jsArray.length; i++) {
+        deviceList.add(UsbDevice._(jsArray[i] as JSObject));
+      }
+      return deviceList as T;
+    } else if (T == UsbInTransferResult) {
+      return UsbInTransferResult._(value as JSObject) as T;
+    } else if (T == UsbOutTransferResult) {
+      return UsbOutTransferResult._(value as JSObject) as T;
+    } else {
+      // For primitive types and void, use dynamic cast
+      return (value as dynamic) as T;
+    }
+  });
 }
 
 class Usb extends Delegate<EventTarget> {
   Usb._(super.delegate);
 
   Future<UsbDevice> requestDevice([RequestOptions? options]) {
-    // Use dart:js_interop's toDart for reliable promise handling
     try {
-      // Call the external JavaScript function with null (options handled in JS)
-      final jsResult = jsRequestDevice(null);
+      print('🔧 requestDevice called - creating options object');
+
+      // Create options object if not provided
+      JSObject requestOptions;
+      if (options != null) {
+        print('📋 Using provided options');
+        requestOptions = options as JSObject;
+      } else {
+        print('🆕 Creating new options with empty filters array');
+        // Create a simple JavaScript object with empty filters array
+        requestOptions = jsObject({'filters': <Object>[]});
+        print('✅ Options object created: {filters: []}');
+      }
+
+      // Call requestDevice directly using JavaScript interop
+      final jsResult = _requestDevice(requestOptions);
 
       // Convert JavaScript promise to Dart Future using dart:js_interop
       final future = promiseToFuture(jsResult);
@@ -28,10 +61,9 @@ class Usb extends Delegate<EventTarget> {
   }
 
   Future<List<UsbDevice>> getDevices() {
-    // Use dart:js_interop's toDart for reliable promise handling
     try {
-      // Call the external JavaScript function
-      final jsResult = jsGetDevices();
+      // Call getDevices directly on the delegate
+      final jsResult = callMethod('getDevices');
 
       // Convert JavaScript promise to Dart Future using dart:js_interop
       final future = promiseToFuture(jsResult);
@@ -129,7 +161,16 @@ class UsbDevice extends Delegate<JSObject> {
   }
 
   Future<UsbOutTransferResult> transferOut(int endpointNumber, TypedData data) {
-    var promise = callMethod('transferOut', [endpointNumber, data]);
+    print(
+      '🔧 transferOut called with endpoint: $endpointNumber, data type: ${data.runtimeType}, data length: ${data.lengthInBytes}',
+    );
+
+    // Convert TypedData to ArrayBuffer
+    final dataBuffer = data.buffer.toJS;
+    print('  Converted data to ArrayBuffer');
+
+    // Call transferOut directly using helper function
+    var promise = callTransferOut(delegate, endpointNumber, dataBuffer);
     return promiseToFuture(
       promise,
     ).then((value) => UsbOutTransferResult._(value));

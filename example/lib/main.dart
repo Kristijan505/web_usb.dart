@@ -1,9 +1,10 @@
-import 'dart:js_interop';
 import 'package:web/web.dart';
 import 'package:web_usb/web_usb.dart';
-import 'thermal_printer_example.dart';
+import 'thermal_printer_example_simple.dart';
 
 void main() {
+  print('🚀 Starting Web USB example - Version 2.0 with fixed requestDevice');
+
   // Get DOM elements
   final statusDiv = document.getElementById('status') as HTMLDivElement;
   final outputDiv = document.getElementById('output') as HTMLDivElement;
@@ -89,12 +90,12 @@ void main() {
         return;
       }
 
-      addOutput('Testing thermal printer functionality...');
+      addOutput('Testing thermal printer...');
 
       final printer = ThermalPrinterExample();
 
       // Initialize the printer
-      addOutput('Initializing thermal printer...');
+      addOutput('Initializing printer...');
       final initialized = await printer.initializePrinter();
 
       if (!initialized) {
@@ -103,33 +104,20 @@ void main() {
       }
 
       // Print a simple test receipt
-      addOutput('Printing test receipt...');
+      addOutput('Printing test...');
       final success = await printer.printTestReceipt();
 
       if (success) {
-        addOutput('✅ Test receipt printed successfully!');
-
-        // Wait a bit before printing the complex receipt
-        await Future.delayed(const Duration(seconds: 2));
-
-        // Print a complex receipt
-        addOutput('Printing complex receipt...');
-        final complexSuccess = await printer.printComplexReceipt();
-
-        if (complexSuccess) {
-          addOutput('✅ Complex receipt printed successfully!');
-        } else {
-          addOutput('❌ Failed to print complex receipt');
-        }
+        addOutput('✅ Test successful!');
       } else {
-        addOutput('❌ Failed to print test receipt');
+        addOutput('❌ Test failed');
       }
 
       // Clean up
       await printer.cleanup();
-      addOutput('Printer cleanup completed');
+      addOutput('Done');
     } catch (e) {
-      addOutput('Error testing thermal printer: $e');
+      addOutput('Error: $e');
     }
   }
 

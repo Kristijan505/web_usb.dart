@@ -2,7 +2,6 @@
 library;
 
 import 'dart:js_interop';
-import 'dart:js_util' as js_util;
 import 'dart:typed_data';
 
 // Extension type for JSObject to add property and method access
@@ -33,12 +32,18 @@ abstract class Delegate<T extends JSObject> {
   }
 
   Result callMethod<Result>(String method, [List<Object> args = const []]) {
+    print('🔧 callMethod called: $method with ${args.length} arguments');
+    for (int i = 0; i < args.length; i++) {
+      print('  arg[$i]: ${args[i].runtimeType} = ${args[i]}');
+    }
+
     final jsObject = JSObjectWithAccess(_delegate as JSObject);
     final methodRef = jsObject[method.toJS];
     if (methodRef == null) {
       throw Exception('Method $method not found');
     }
-    // Convert args to JS array
+
+    // Convert args to JS values
     final jsArgs = args.map((arg) {
       if (arg is String) return arg.toJS;
       if (arg is int) return arg.toJS;
@@ -46,15 +51,32 @@ abstract class Delegate<T extends JSObject> {
       if (arg is bool) return arg.toJS;
       if (arg is TypedData) {
         // Convert TypedData to JS ArrayBuffer
-        return arg.buffer.asUint8List().toJS;
+        print('  Converting TypedData to ArrayBuffer');
+        return arg.buffer.toJS;
       }
       // Handle other types by converting to string first
       return arg.toString().toJS;
     }).toList();
 
-    // Use js_util.callMethod for multiple arguments
-    final result = js_util.callMethod(_delegate, method, args);
-    // Use dynamic cast to avoid js_interop warnings
-    return (result as dynamic) as Result;
+    print('  Converted to ${jsArgs.length} JS arguments');
+
+    // Call the method with converted arguments
+    final jsFunction = JSFunction(methodRef);
+    print('  Calling JS function with ${jsArgs.length} arguments');
+
+    // Try using apply method instead of call
+    if (jsArgs.isEmpty) {
+      final result = jsFunction.call(_delegate, <JSAny?>[].toJS);
+      return (result as dynamic) as Result;
+    } else if (jsArgs.length == 1) {
+      final result = jsFunction.call(_delegate, [jsArgs[0]].toJS);
+      return (result as dynamic) as Result;
+    } else if (jsArgs.length == 2) {
+      final result = jsFunction.call(_delegate, [jsArgs[0], jsArgs[1]].toJS);
+      return (result as dynamic) as Result;
+    } else {
+      final result = jsFunction.call(_delegate, jsArgs.toJS);
+      return (result as dynamic) as Result;
+    }
   }
 }
