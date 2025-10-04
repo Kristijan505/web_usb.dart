@@ -35,17 +35,6 @@ external EventTarget? get _usb;
 @JS('navigator.usb.requestDevice')
 external JSAny? _requestDevice(JSObject options);
 
-// Helper function to call transferOut directly
-JSAny? callTransferOut(JSObject device, int endpointNumber, JSObject data) {
-  final jsObject = JSObjectWithAccess(device);
-  final methodRef = jsObject['transferOut'.toJS];
-  if (methodRef == null) {
-    throw Exception('transferOut method not found');
-  }
-
-  final jsFunction = JSFunction(methodRef);
-  return jsFunction.call(device, [endpointNumber.toJS, data].toJS);
-}
 
 bool canUseUsb() => _usb != null;
 

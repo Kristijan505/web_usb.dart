@@ -3721,6 +3721,25 @@
     _EventStreamSubscription_closure: function _EventStreamSubscription_closure(t0) {
       this.onData = t0;
     },
+    _toJSValue(value) {
+      var t1;
+      if (typeof value == "string")
+        return value;
+      if (typeof value == "number")
+        return value;
+      if (A._isBool(value))
+        return value;
+      if (type$.TypedData._is(value))
+        return type$.NativeArrayBuffer._as(J.get$buffer$x(value));
+      if (type$.List_dynamic._is(value)) {
+        t1 = J.map$1$1$ax(value, new A._toJSValue_closure(), type$.nullable_Object);
+        t1 = A.List_List$_of(t1, t1.$ti._eval$1("ListIterable.E"));
+        return t1;
+      }
+      return J.toString$0$(value);
+    },
+    _toJSValue_closure: function _toJSValue_closure() {
+    },
     Delegate: function Delegate() {
     },
     Delegate_callMethod_closure: function Delegate_callMethod_closure() {
@@ -3734,11 +3753,11 @@
       var t1, entry, _this = {};
       for (t1 = new A.LinkedHashMapEntriesIterable(map, map.$ti._eval$1("LinkedHashMapEntriesIterable<1,2>")).get$iterator(0); t1.moveNext$0();) {
         entry = t1.__js_helper$_current;
-        _this[entry.key] = A._toJSValue(entry.value);
+        _this[entry.key] = A._toJSValue0(entry.value);
       }
       return _this;
     },
-    _toJSValue(value) {
+    _toJSValue0(value) {
       var t1;
       if (typeof value == "string")
         return value;
@@ -3751,7 +3770,7 @@
       if (type$.Map_String_Object._is(value))
         return A.jsObject(value);
       if (type$.List_dynamic._is(value)) {
-        t1 = J.map$1$1$ax(value, new A._toJSValue_closure(), type$.nullable_Object);
+        t1 = J.map$1$1$ax(value, new A._toJSValue_closure0(), type$.nullable_Object);
         t1 = A.List_List$_of(t1, t1.$ti._eval$1("ListIterable.E"));
         return t1;
       }
@@ -3813,7 +3832,7 @@
     UsbOutTransferResult: function UsbOutTransferResult(t0) {
       this._delegate = t0;
     },
-    _toJSValue_closure: function _toJSValue_closure() {
+    _toJSValue_closure0: function _toJSValue_closure0() {
     },
     main() {
       var t1, statusDiv, outputDiv, checkUsbBtn, getDevicesBtn, requestDeviceBtn, testThermalPrinterBtn, t2, t3, t4, _s5_ = "click";
@@ -4407,19 +4426,19 @@
     call$1(o) {
       return this.getTag(o);
     },
-    $signature: 7
+    $signature: 8
   };
   A.initHooks_closure0.prototype = {
     call$2(o, tag) {
       return this.getUnknownTag(o, tag);
     },
-    $signature: 8
+    $signature: 9
   };
   A.initHooks_closure1.prototype = {
     call$1(tag) {
       return this.prototypeForTag(A._asString(tag));
     },
-    $signature: 9
+    $signature: 10
   };
   A.NativeByteBuffer.prototype = {
     get$runtimeType(receiver) {
@@ -4590,7 +4609,7 @@
       t2 = this.span;
       t1.firstChild ? t1.removeChild(t2) : t1.appendChild(t2);
     },
-    $signature: 10
+    $signature: 11
   };
   A._AsyncRun__scheduleImmediateJsOverride_internalCallback.prototype = {
     call$0() {
@@ -4653,13 +4672,13 @@
     call$2(error, stackTrace) {
       this.bodyFunction.call$2(1, new A.ExceptionAndStackTrace(error, type$.StackTrace._as(stackTrace)));
     },
-    $signature: 11
+    $signature: 12
   };
   A._wrapJsFunctionForAsync_closure.prototype = {
     call$2(errorCode, result) {
       this.$protected(A._asInt(errorCode), result);
     },
-    $signature: 12
+    $signature: 13
   };
   A.AsyncError.prototype = {
     toString$0(_) {
@@ -4956,7 +4975,7 @@
       type$.StackTrace._as(s);
       this.joinedResult._completeErrorObject$1(new A.AsyncError(e, s));
     },
-    $signature: 13
+    $signature: 14
   };
   A._Future__propagateToListeners_handleValueCallback.prototype = {
     call$0() {
@@ -5174,7 +5193,7 @@
       t2 = A.S(v);
       t1._contents += t2;
     },
-    $signature: 14
+    $signature: 15
   };
   A.Error.prototype = {
     get$stackTrace() {
@@ -5376,45 +5395,27 @@
     },
     $signature: 1
   };
+  A._toJSValue_closure.prototype = {
+    call$1(e) {
+      return A._toJSValue(e == null ? A._asObject(e) : e);
+    },
+    $signature: 6
+  };
   A.Delegate.prototype = {
     getProperty$1$1($name, $Prop) {
       return $Prop._as(this._delegate[$name]);
     },
     callMethod$1$2(method, args, Result) {
-      var t1, i, t2, _this, methodRef, jsArgs;
+      var _this, methodRef, t1, t2, jsArgs;
       type$.List_Object._as(args);
-      A.print("\ud83d\udd27 callMethod called: " + method + " with " + args.length + " arguments");
-      for (t1 = type$.int, i = 0; i < args.length; ++i) {
-        t2 = A.createRuntimeType(t1).toString$0(0);
-        if (!(i < args.length))
-          return A.ioore(args, i);
-        A.printString("  arg[" + i + "]: " + t2 + " = " + args[i]);
-      }
       _this = this._delegate;
       methodRef = _this[method];
       if (methodRef == null)
         throw A.wrapException(A.Exception_Exception("Method " + method + " not found"));
       t1 = A._arrayInstanceType(args);
-      t2 = t1._eval$1("MappedListIterable<1,Object>");
-      jsArgs = A.List_List$_of(new A.MappedListIterable(args, t1._eval$1("Object(1)")._as(new A.Delegate_callMethod_closure()), t2), t2._eval$1("ListIterable.E"));
-      A.print("  Converted to " + jsArgs.length + " JS arguments");
-      A.print("  Calling JS function with " + jsArgs.length + " arguments");
-      t1 = jsArgs.length;
-      if (t1 === 0)
-        return Result._as(methodRef.call(_this, []));
-      else if (t1 === 1) {
-        if (0 >= t1)
-          return A.ioore(jsArgs, 0);
-        return Result._as(methodRef.call(_this, A._setArrayType([jsArgs[0]], type$.JSArray_Object)));
-      } else if (t1 === 2) {
-        if (0 >= t1)
-          return A.ioore(jsArgs, 0);
-        t2 = jsArgs[0];
-        if (1 >= t1)
-          return A.ioore(jsArgs, 1);
-        return Result._as(methodRef.call(_this, A._setArrayType([t2, jsArgs[1]], type$.JSArray_Object)));
-      } else
-        return Result._as(methodRef.call(_this, jsArgs));
+      t2 = t1._eval$1("MappedListIterable<1,Object?>");
+      jsArgs = A.List_List$_of(new A.MappedListIterable(args, t1._eval$1("Object?(1)")._as(new A.Delegate_callMethod_closure()), t2), t2._eval$1("ListIterable.E"));
+      return Result._as(methodRef.apply(_this, jsArgs));
     },
     callMethod$1$1(method, Result) {
       return this.callMethod$1$2(method, B.List_empty, Result);
@@ -5422,22 +5423,9 @@
   };
   A.Delegate_callMethod_closure.prototype = {
     call$1(arg) {
-      A._asObject(arg);
-      if (typeof arg == "string")
-        return arg;
-      if (A._isInt(arg))
-        return arg;
-      if (typeof arg == "number")
-        return arg;
-      if (A._isBool(arg))
-        return arg;
-      if (type$.TypedData._is(arg)) {
-        A.print("  Converting TypedData to ArrayBuffer");
-        return type$.NativeArrayBuffer._as(J.get$buffer$x(arg));
-      }
-      return J.toString$0$(arg);
+      return A._toJSValue(A._asObject(arg));
     },
-    $signature: 15
+    $signature: 16
   };
   A.promiseToFuture_closure.prototype = {
     call$1(value) {
@@ -5506,7 +5494,7 @@
     call$1(value) {
       return new A.UsbDevice(A._asJSObject(value));
     },
-    $signature: 6
+    $signature: 7
   };
   A.Usb_getDevices_closure.prototype = {
     call$1(value) {
@@ -5517,13 +5505,13 @@
       t1 = A.List_List$_of(new A.MappedListIterable(t1, t2._eval$1("UsbDevice(1)")._as(new A.Usb_getDevices__closure()), t3), t3._eval$1("ListIterable.E"));
       return t1;
     },
-    $signature: 16
+    $signature: 17
   };
   A.Usb_getDevices__closure.prototype = {
     call$1(e) {
       return new A.UsbDevice(A._asJSObject(e));
     },
-    $signature: 6
+    $signature: 7
   };
   A.UsbDevice.prototype = {
     get$configuration() {
@@ -5533,22 +5521,17 @@
       return new A.UsbConfiguration(A._asJSObject(property));
     },
     transferOut$2(endpointNumber, data) {
-      var dataBuffer, _this, methodRef;
+      var t1;
       A.print("\ud83d\udd27 transferOut called with endpoint: " + endpointNumber + ", data type: " + B.Type_Uint8List_8Eb.toString$0(0) + ", data length: " + data.byteLength);
-      dataBuffer = type$.NativeArrayBuffer._as(B.NativeUint8List_methods.get$buffer(data));
-      A.print("  Converted data to ArrayBuffer");
-      _this = this._delegate;
-      methodRef = _this.transferOut;
-      if (methodRef == null)
-        A.throwExpression(A.Exception_Exception("transferOut method not found"));
-      return A.promiseToFuture(methodRef.call(_this, A._setArrayType([endpointNumber, dataBuffer], type$.JSArray_Object)), type$.dynamic).then$1$1(new A.UsbDevice_transferOut_closure(), type$.UsbOutTransferResult);
+      t1 = type$.dynamic;
+      return A.promiseToFuture(this.callMethod$1$2("transferOut", A._setArrayType([endpointNumber, data], type$.JSArray_Object), t1), t1).then$1$1(new A.UsbDevice_transferOut_closure(), type$.UsbOutTransferResult);
     }
   };
   A.UsbDevice_transferOut_closure.prototype = {
     call$1(value) {
       return new A.UsbOutTransferResult(A._asJSObject(value));
     },
-    $signature: 17
+    $signature: 18
   };
   A.UsbConfiguration.prototype = {
     get$interfaces() {
@@ -5565,7 +5548,7 @@
     call$1(e) {
       return new A.UsbInterface(A._asJSObject(e));
     },
-    $signature: 18
+    $signature: 19
   };
   A.UsbInterface.prototype = {
     get$alternates() {
@@ -5582,7 +5565,7 @@
     call$1(e) {
       return new A.UsbAlternateInterface(A._asJSObject(e));
     },
-    $signature: 19
+    $signature: 20
   };
   A.UsbAlternateInterface.prototype = {
     get$endpoints() {
@@ -5599,16 +5582,16 @@
     call$1(e) {
       return new A.UsbEndpoint(A._asJSObject(e));
     },
-    $signature: 20
+    $signature: 21
   };
   A.UsbEndpoint.prototype = {};
   A.UsbInTransferResult.prototype = {};
   A.UsbOutTransferResult.prototype = {};
-  A._toJSValue_closure.prototype = {
+  A._toJSValue_closure0.prototype = {
     call$1(e) {
-      return A._toJSValue(e == null ? A._asObject(e) : e);
+      return A._toJSValue0(e == null ? A._asObject(e) : e);
     },
-    $signature: 21
+    $signature: 6
   };
   A.main_updateStatus.prototype = {
     call$2(message, type) {
@@ -6294,7 +6277,7 @@
     _inheritMany(A.EfficientLengthIterable, [A.ListIterable, A.LinkedHashMapEntriesIterable]);
     _inherit(A.MappedListIterable, A.ListIterable);
     _inherit(A.NullError, A.TypeError);
-    _inheritMany(A.Closure, [A.Closure0Args, A.Closure2Args, A.TearOffClosure, A.initHooks_closure, A.initHooks_closure1, A._AsyncRun__initializeScheduleImmediate_internalCallback, A._AsyncRun__initializeScheduleImmediate_closure, A._awaitOnObject_closure, A._Future__propagateToListeners_handleWhenCompleteCallback_closure, A.Stream_length_closure, A._RootZone_bindUnaryCallbackGuarded_closure, A.promiseToFuture_closure0, A.promiseToFuture_closure1, A._EventStreamSubscription_closure, A.Delegate_callMethod_closure, A.promiseToFuture_closure, A.Usb_requestDevice_closure, A.Usb_getDevices_closure, A.Usb_getDevices__closure, A.UsbDevice_transferOut_closure, A.UsbConfiguration_interfaces_closure, A.UsbInterface_alternates_closure, A.UsbAlternateInterface_endpoints_closure, A._toJSValue_closure, A.main_addOutput, A.main_closure, A.main_closure0, A.main_closure1, A.main_closure2]);
+    _inheritMany(A.Closure, [A.Closure0Args, A.Closure2Args, A.TearOffClosure, A.initHooks_closure, A.initHooks_closure1, A._AsyncRun__initializeScheduleImmediate_internalCallback, A._AsyncRun__initializeScheduleImmediate_closure, A._awaitOnObject_closure, A._Future__propagateToListeners_handleWhenCompleteCallback_closure, A.Stream_length_closure, A._RootZone_bindUnaryCallbackGuarded_closure, A.promiseToFuture_closure0, A.promiseToFuture_closure1, A._EventStreamSubscription_closure, A._toJSValue_closure, A.Delegate_callMethod_closure, A.promiseToFuture_closure, A.Usb_requestDevice_closure, A.Usb_getDevices_closure, A.Usb_getDevices__closure, A.UsbDevice_transferOut_closure, A.UsbConfiguration_interfaces_closure, A.UsbInterface_alternates_closure, A.UsbAlternateInterface_endpoints_closure, A._toJSValue_closure0, A.main_addOutput, A.main_closure, A.main_closure0, A.main_closure1, A.main_closure2]);
     _inheritMany(A.TearOffClosure, [A.StaticClosure, A.BoundClosure]);
     _inherit(A.JsLinkedHashMap, A.MapBase);
     _inheritMany(A.Closure2Args, [A.initHooks_closure0, A._awaitOnObject_closure0, A._wrapJsFunctionForAsync_closure, A._Future__propagateToListeners_handleWhenCompleteCallback_closure0, A.MapBase_mapToString_closure, A.main_updateStatus]);
@@ -6326,7 +6309,7 @@
     typeUniverse: {eC: new Map(), tR: {}, eT: {}, tPV: {}, sEA: []},
     mangledGlobalNames: {int: "int", double: "double", num: "num", String: "String", bool: "bool", Null: "Null", List: "List", Object: "Object", Map: "Map", JSObject: "JSObject"},
     mangledNames: {},
-    types: ["~()", "~(JSObject)", "~(@)", "~(~())", "Null(@)", "Null()", "UsbDevice(@)", "@(@)", "@(@,String)", "@(String)", "Null(~())", "Null(@,StackTrace)", "~(int,@)", "Null(Object,StackTrace)", "~(Object?,Object?)", "Object(Object)", "List<UsbDevice>(@)", "UsbOutTransferResult(@)", "UsbInterface(@)", "UsbAlternateInterface(@)", "UsbEndpoint(@)", "Object?(@)", "~(String,String)", "~(String)"],
+    types: ["~()", "~(JSObject)", "~(@)", "~(~())", "Null(@)", "Null()", "Object?(@)", "UsbDevice(@)", "@(@)", "@(@,String)", "@(String)", "Null(~())", "Null(@,StackTrace)", "~(int,@)", "Null(Object,StackTrace)", "~(Object?,Object?)", "Object?(Object)", "List<UsbDevice>(@)", "UsbOutTransferResult(@)", "UsbInterface(@)", "UsbAlternateInterface(@)", "UsbEndpoint(@)", "~(String,String)", "~(String)"],
     interceptorsByTag: null,
     leafTags: null,
     arrayRti: Symbol("$ti")
@@ -6410,7 +6393,6 @@
     B.JSInt_methods = J.JSInt.prototype;
     B.JavaScriptFunction_methods = J.JavaScriptFunction.prototype;
     B.JavaScriptObject_methods = J.JavaScriptObject.prototype;
-    B.NativeUint8List_methods = A.NativeUint8List.prototype;
     B.PlainJavaScriptObject_methods = J.PlainJavaScriptObject.prototype;
     B.UnknownJavaScriptObject_methods = J.UnknownJavaScriptObject.prototype;
     B.C_JS_CONST = function getTagFallback(o) {

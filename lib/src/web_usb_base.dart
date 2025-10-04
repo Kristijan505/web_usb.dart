@@ -165,12 +165,10 @@ class UsbDevice extends Delegate<JSObject> {
       '🔧 transferOut called with endpoint: $endpointNumber, data type: ${data.runtimeType}, data length: ${data.lengthInBytes}',
     );
 
-    // Convert TypedData to ArrayBuffer
-    final dataBuffer = data.buffer.toJS;
-    print('  Converted data to ArrayBuffer');
-
-    // Call transferOut directly using helper function
-    var promise = callTransferOut(delegate, endpointNumber, dataBuffer);
+    // Use the new and improved generic callMethod.
+    // It will correctly handle the conversion of `data` to an ArrayBuffer.
+    var promise = callMethod('transferOut', [endpointNumber, data]);
+    
     return promiseToFuture(
       promise,
     ).then((value) => UsbOutTransferResult._(value));
