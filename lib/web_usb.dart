@@ -35,7 +35,6 @@ external EventTarget? get _usb;
 @JS('navigator.usb.requestDevice')
 external JSAny? _requestDevice(JSObject options);
 
-
 bool canUseUsb() => _usb != null;
 
 Usb? _instance;

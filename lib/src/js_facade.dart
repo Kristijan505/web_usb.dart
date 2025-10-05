@@ -23,7 +23,7 @@ extension type JSObjectWithAccess(JSObject _) implements JSObject {
 // Extension to correctly expose JavaScript's 'apply' function
 extension JSFunctionApply on JSAny? {
   @JS('apply')
-  external JSAny? apply(JSAny? thisArg, JSArray args);
+  external JSAny? apply(JSAny? thisArg, [JSArray? args]);
 }
 
 abstract class Delegate<T extends JSObject> {

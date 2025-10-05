@@ -168,7 +168,7 @@ class UsbDevice extends Delegate<JSObject> {
     // Use the new and improved generic callMethod.
     // It will correctly handle the conversion of `data` to an ArrayBuffer.
     var promise = callMethod('transferOut', [endpointNumber, data]);
-    
+
     return promiseToFuture(
       promise,
     ).then((value) => UsbOutTransferResult._(value));
